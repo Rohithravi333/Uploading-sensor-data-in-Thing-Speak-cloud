@@ -1,4 +1,4 @@
-# Uploading temperature sensor data in Thing Speak cloud
+# EXP-3 Uploading temperature sensor data in Thing Speak cloud
 
 # AIM:
 To monitor the temperature sensor data in the Thing speak using an ESP32 controller.
@@ -72,9 +72,77 @@ Automatically act on your data and communicate using third-party services like T
 
 # PROGRAM:
 
+```
+
+#include "ThingSpeak.h"
+#include <WiFi.h>
+#include "DHT.h"
+//#include <OneWire.h>
+//#include <DallasTemperature.h>
+
+char ssid[] = "Aakash"; // Your WiFi SSID
+char pass[] = "zxcvbnm";  // Your WiFi password
+
+const int out = 23; // Pin for temperature sensor data
+long T;
+float temperature = 0; // Initialize temperature
+WiFiClient client;
+DHT dht(23, DHT11);
+
+unsigned long myChannelField = 2495534; // Channel ID
+const int TemperatureField = 1;          // Field for temperature data
+const int HumidityField = 2;          // Field for humidity data
+
+const char* myWriteAPIKey = "PPL3B7P4AKQQIS5Z"; // Your write API Key
+
+// Temperature sensor setup
+void setup() {
+  Serial.begin(115200);
+  pinMode(out, INPUT); // Set pin mode to input for temperature sensor
+  ThingSpeak.begin(client);
+  dht.begin();
+  delay(1000);
+ }
+
+void loop() 
+{
+  if (WiFi.status() != WL_CONNECTED) 
+  {
+Serial.print("Attempting to connect to SSID: ");
+    Serial.println(ssid);
+    while (WiFi.status() != WL_CONNECTED) 
+    {
+      WiFi.begin(ssid, pass);
+      Serial.print(".");
+      delay(5000);
+    }
+    Serial.println("\nConnected.");
+  }
+
+  // Read temperature
+  float temperature = dht.readTemperature();
+  float humidity = dht.readHumidity();
+  
+  Serial.print("Temperature: ");
+  Serial.print(temperature);
+  Serial.println(" °C");
+
+  Serial.print("Humidity ");
+Serial.print(humidity);
+  Serial.println(" g.m-3");
+// Write temperature to ThingSpeak
+  ThingSpeak.writeField(myChannelField, TemperatureField, temperature, myWriteAPIKey); // Write temperature to ThingSpeak
+  ThingSpeak.writeField(myChannelField, HumidityField, humidity, myWriteAPIKey); // Write humidity to ThingSpeak
+ delay(100);
+}
+
+```
+
 # CIRCUIT DIAGRAM:
+![WhatsApp Image 2024-11-14 at 15 02 16_cd59f994](https://github.com/user-attachments/assets/cc48ef2f-ebfe-403d-b1e7-f92b4138e8a9)
 
 # OUTPUT:
+![WhatsApp Image 2024-11-14 at 15 02 20_93a05669](https://github.com/user-attachments/assets/7a8d62d6-9166-4d6d-9757-cd65b99f5151)
 
 # RESULT:
 
